@@ -1,40 +1,56 @@
-// Write your JavaScript code here!
+window.addEventListener("load", function() { //event listener when the window loads
+    let form = document.querySelector("form"); //select mission form element DOM
+    
+    form.addEventListener("submit", function(event) { //event listener for form submission
+        event.preventDefault();
+        
+        //input elements from the form
+        let pilotNameInput = document.querySelector("input[name=pilotName]");
+        let copilotNameInput = document.querySelector("input[name=copilotName]");
+        let fuelLevelInput = document.querySelector("input[name=fuelLevel]");
+        let cargoMassInput = document.querySelector("input[name=cargoMass]");
 
-const { myFetch, pickPlanet, addDestinationInfo, formSubmission } = require("./scriptHelper");
+        //retrieves values
+        let pilotName = pilotNameInput.value;
+        let copilotName = copilotNameInput.value;
+        let fuelLevel = fuelLevelInput.value;
+        let cargoMass = cargoMassInput.value;
 
-if (typeof window !== 'undefined') {
+        let list = document.getElementById("faultyItems"); //faulty item list element
 
-window.addEventListener("load", function() {
+        //validation
+        if (validateInput(pilotName) === "Empty" || validateInput(copilotName) === "Empty" || 
+            validateInput(fuelLevel) === "Empty" || validateInput(cargoMass) === "Empty") {
+            alert("All fields are required!");
+            return;
+        }
 
-    document.getElementById("launchForm").addEventListener("submit", function(event) {
-        event.preventDefault(); // Prevent default form submission
+        if (validateInput(fuelLevel) === "Not a Number" || validateInput(cargoMass) === "Not a Number") {
+            alert("Fuel level and Cargo mass should be numbers!");
+            return;
+        }
 
-        // Get input values
-        const pilot = document.querySelector("input[name='pilotName']").value;
-        const copilot = document.querySelector("input[name='copilotName']").value;
-        const fuelLevel = document.querySelector("input[name='fuelLevel']").value;
-        const cargoMass = document.querySelector("input[name='cargoMass']").value;
+        if (validateInput(pilotName) === "Is a Number" || validateInput(copilotName) === "Is a Number") {
+            alert("Pilot and Co-pilot names should be strings!");
+            return;
+        }
 
-        // Call formSubmission function
-        formSubmission(document, pilot, copilot, fuelLevel, cargoMass);
+        //if above pass, form submit
+        formSubmission(document, list, pilotName, copilotName, fuelLevel, cargoMass);
     });
 
-    let listedPlanets;
-    // Set listedPlanetsResponse equal to the value returned by calling myFetch()
+    //TASK 3
+    let listedPlanets; //holds listedPlanet
 
-    let listedPlanetsResponse = myFetch('https://handlers.education.launchcode.org/static/planets.json'); // Call myFetch to fetch the planetary data
+    let listedPlanetsResponse = myFetch(); //holds fetched data
 
     listedPlanetsResponse.then(function (result) {
-        listedPlanets = result;
-        console.log(listedPlanets);
+        listedPlanets = result; //result assigns to listedPlanet
+        // console.log(listedPlanets);
 
     }).then(function () {
-        console.log(listedPlanets);
         // Below this comment call the appropriate helper functions to pick a planet fom the list of planets and add that information to your destination.
-        const selectedPlanet = pickPlanet(listedPlanets); // Pick a random planet from the fetched data
-        addDestinationInfo(document, selectedPlanet.name, selectedPlanet.diameter, selectedPlanet.star, selectedPlanet.distance, selectedPlanet.moons, selectedPlanet.image); // Display the selected planet's information
-    })
-    
- });
-
-}
+        let planet = pickPlanet(listedPlanets);//random select & shows on webpage
+        addDestinationInfo(document, planet.name, planet.diameter, planet.star, planet.distance, planet.moons, planet.image);
+    });
+});
